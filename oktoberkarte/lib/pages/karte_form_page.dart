@@ -126,7 +126,7 @@ class _KarteFormPageState extends State<KarteFormPage> {
         data: {
           'nomeUsuario': nomeUsuario,
           'valorSaldo': valorSaldo,
-          'dataInclusao': dataInclusao.toIso8601String(),
+          'dataInclusao': dataInclusao,
         },
       );
 
