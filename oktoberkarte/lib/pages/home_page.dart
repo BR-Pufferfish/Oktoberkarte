@@ -78,6 +78,10 @@ class _MyHomePageState extends State<HomePage> {
                       Text(kartes[index].dataInclusao.toString()),
                     ],
                   ),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onPressed: _deletarKarte(kartes[index].nomeUsuario),
+                  ),
                   isThreeLine: true,
                 );
               },
@@ -104,5 +108,18 @@ class _MyHomePageState extends State<HomePage> {
           kartes.clear();
           _getKartes();
         });
+  }
+
+  Future<void> _deletarKarte(String nomeUsuario) async {
+    // Implementar a lógica de deleção aqui
+
+    var dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 30),
+        baseUrl: 'https://691266ae52a60f10c8218c11.mockapi.io/api/v1',
+      ),
+    );
+
+    final response = await dio.delete('/karte/$nomeUsuario');
   }
 }
