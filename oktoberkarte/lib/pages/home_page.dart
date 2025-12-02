@@ -40,6 +40,7 @@ class _MyHomePageState extends State<HomePage> {
     var listaData = response.data as List;
     for (var data in listaData) {
       var karte = NovoKarte(
+        id: data['id'],
         nomeUsuario: data['nomeUsuario'],
         valorSaldo: double.parse(data['valorSaldo']),
         dataInclusao: DateTime.parse(data['dataInclusao']),
@@ -80,9 +81,13 @@ class _MyHomePageState extends State<HomePage> {
                   ),
                   trailing: IconButton(
                     icon: Icon(Icons.delete, color: Colors.red),
-                    onPressed: _deletarKarte(kartes[index].nomeUsuario),
+                    onPressed: () => _deletarKarte(kartes[index].id),
                   ),
                   isThreeLine: true,
+                  onTap: () {
+                    // Ação ao tocar no item da lista (se necessário)
+                    () => _editarKarte(kartes[index]);
+                  },
                 );
               },
             ),
@@ -110,9 +115,7 @@ class _MyHomePageState extends State<HomePage> {
         });
   }
 
-  Future<void> _deletarKarte(String nomeUsuario) async {
-    // Implementar a lógica de deleção aqui
-
+  void _deletarKarte(String id) async {
     var dio = Dio(
       BaseOptions(
         connectTimeout: const Duration(seconds: 30),
@@ -120,6 +123,19 @@ class _MyHomePageState extends State<HomePage> {
       ),
     );
 
-    final response = await dio.delete('/karte/$nomeUsuario');
+    var response = await dio.delete('/karte/$id');
+    if (response.statusCode == 200) {
+    } else {
+      if (!context.mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao deletar Karte')));
+    }
+    Navigator.pop(context);
+  }
+
+  void _editarKarte(NovoKarte kart) async {
+    // Implementar a lógica de edição aqui
   }
 }
