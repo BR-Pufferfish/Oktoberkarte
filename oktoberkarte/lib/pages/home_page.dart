@@ -86,7 +86,7 @@ class _MyHomePageState extends State<HomePage> {
                   isThreeLine: true,
                   onTap: () {
                     // Ação ao tocar no item da lista (se necessário)
-                    () => _editarKarte(kartes[index]);
+                    () => _editarKarte(kartes[index].id);
                   },
                 );
               },
@@ -135,7 +135,7 @@ class _MyHomePageState extends State<HomePage> {
     Navigator.pop(context);
   }
 
-  void _editarKarte(NovoKarte kart) async {
+  void _editarKarte(String id) async {
     // Implementar a lógica de edição aqui
   }
 }
