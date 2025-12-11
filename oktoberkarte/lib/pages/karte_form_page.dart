@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:oktoberkarte/models/karte_model.dart';
 
 class KarteFormPage extends StatefulWidget {
-  const KarteFormPage({super.key});
+  final String? id; // Added id parameter
+  const KarteFormPage({super.key, this.id});
 
   @override
   State<KarteFormPage> createState() => _KarteFormPageState();
@@ -12,14 +14,22 @@ class _KarteFormPageState extends State<KarteFormPage> {
   late TextEditingController controllerNome;
   late TextEditingController controllerValor;
   late TextEditingController controllerData;
+  DateTime selectedDate = DateTime.now();
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  NovoKarte? _karte; // Adiciona um objeto do karte para edição
 
   @override
   void initState() {
     controllerNome = TextEditingController();
     controllerValor = TextEditingController();
-    controllerData = TextEditingController();
+    controllerData = TextEditingController(
+      text: selectedDate.toIso8601String(),
+    );
+    if (widget.id != null) {
+      _loadNovoKarte(widget.id!); // Carrega o karte existente caso receba um ID
+    }
     super.initState();
   }
 
@@ -34,7 +44,9 @@ class _KarteFormPageState extends State<KarteFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Karte Form Page')),
+      appBar: AppBar(
+        title: Text(widget.id == null ? 'Cadastrar Karte' : 'Editar Karte'),
+      ),
       body: Form(
         key: formKey,
         child: Column(
@@ -73,9 +85,10 @@ class _KarteFormPageState extends State<KarteFormPage> {
               ),
             ),
 
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: _salvarKarte,
-              child: const Text('Salvar Karte'),
+              label: Text("Salvar Karte"),
+              icon: Icon(Icons.save_alt_outlined),
             ),
           ],
         ),
@@ -111,7 +124,6 @@ class _KarteFormPageState extends State<KarteFormPage> {
   Future<void> _salvarKarte() async {
     final nomeUsuario = controllerNome.text;
     final valorSaldo = double.parse(controllerValor.text);
-    final dataInclusao = DateTime.parse(controllerData.text);
 
     if (formKey.currentState?.validate() == true) {
       var dio = Dio(
@@ -121,17 +133,55 @@ class _KarteFormPageState extends State<KarteFormPage> {
         ),
       );
 
-      var response = await dio.post(
-        '/karte',
-        data: {
-          'nomeUsuario': nomeUsuario,
-          'valorSaldo': valorSaldo,
-          'dataInclusao': dataInclusao,
-        },
-      );
+      if (widget.id == null) {
+        // Criação de novo karte
+        await dio.post(
+          '/karte',
+          data: {
+            'nomeUsuario': nomeUsuario,
+            'valorSaldo': valorSaldo,
+            'dataInclusao': selectedDate.millisecondsSinceEpoch,
+          },
+        );
+      } else {
+        // Atualização de karte existente
+        await dio.put(
+          '/karte/${widget.id}',
+          data: {
+            'nomeUsuario': nomeUsuario,
+            'valorSaldo': valorSaldo,
+            'dataInclusao': selectedDate.millisecondsSinceEpoch,
+          },
+        );
+      }
 
       if (!context.mounted) return;
       Navigator.pop(context);
+    }
+  }
+
+  Future<void> _loadNovoKarte(String id) async {
+    var dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 30),
+        baseUrl: 'https://691266ae52a60f10c8218c11.mockapi.io/api/v1',
+      ),
+    );
+
+    var response = await dio.get('/karte/$id');
+    if (response.statusCode == 200) {
+      setState(() {
+        _karte = NovoKarte.fromJson(response.data);
+        controllerNome.text = _karte!.nomeUsuario;
+        controllerValor.text = _karte!.valorSaldo.toString();
+        controllerData.text = _karte!.dataInclusao.toIso8601String();
+      });
+    } else {
+      if (!context.mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao carregar o karte.')));
     }
   }
 }

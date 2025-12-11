@@ -10,4 +10,13 @@ class NovoKarte {
     required this.valorSaldo,
     required this.dataInclusao,
   });
+
+  factory NovoKarte.fromJson(Map<String, dynamic> json) {
+    return NovoKarte(
+      id: json['id'],
+      nomeUsuario: json['nomeUsuario'],
+      valorSaldo: double.parse(json['valorSaldo'].toString()),
+      dataInclusao: DateTime.fromMillisecondsSinceEpoch(json['dataInclusao']),
+    );
+  }
 }

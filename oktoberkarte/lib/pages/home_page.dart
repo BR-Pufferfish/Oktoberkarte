@@ -38,12 +38,15 @@ class _MyHomePageState extends State<HomePage> {
     var response = await dio.get('/karte');
 
     var listaData = response.data as List;
+
+    kartes.clear();
+
     for (var data in listaData) {
       var karte = NovoKarte(
         id: data['id'],
         nomeUsuario: data['nomeUsuario'],
-        valorSaldo: double.parse(data['valorSaldo']),
-        dataInclusao: DateTime.parse(data['dataInclusao']),
+        valorSaldo: double.parse(data['valorSaldo'].toString()),
+        dataInclusao: DateTime.fromMillisecondsSinceEpoch(data['dataInclusao']),
       );
       kartes.add(karte);
     }
@@ -81,13 +84,10 @@ class _MyHomePageState extends State<HomePage> {
                   ),
                   trailing: IconButton(
                     icon: Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _deletarKarte(kartes[index].id),
+                    onPressed: () => _onPressedDeleteButton(kartes[index].id),
                   ),
                   isThreeLine: true,
-                  onTap: () {
-                    // Ação ao tocar no item da lista (se necessário)
-                    () => _editarKarte(kartes[index].id);
-                  },
+                  onTap: () => _onTapEditarKarte(kartes[index].id),
                 );
               },
             ),
@@ -115,6 +115,32 @@ class _MyHomePageState extends State<HomePage> {
         });
   }
 
+  void _onPressedDeleteButton(String id) async {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: Text("Deletar Registro"),
+          content: Text("Deseja realmente deletar este registro?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancelar"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _deletarKarte(id);
+              },
+              child: Text("Deletar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _deletarKarte(String id) async {
     var dio = Dio(
       BaseOptions(
@@ -133,9 +159,22 @@ class _MyHomePageState extends State<HomePage> {
       ).showSnackBar(SnackBar(content: Text('Erro ao deletar Karte')));
     }
     Navigator.pop(context);
+    _getKartes();
   }
 
-  void _editarKarte(String id) async {
+  void _onTapEditarKarte(String id) async {
     // Implementar a lógica de edição aqui
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) {
+              return KarteFormPage(id: id);
+            },
+          ),
+        )
+        .then((_) {
+          kartes.clear();
+          _getKartes();
+        });
   }
 }
