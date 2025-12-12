@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:oktoberkarte/models/karte_model.dart';
 
 class KarteFormPage extends StatefulWidget {
@@ -15,6 +16,9 @@ class _KarteFormPageState extends State<KarteFormPage> {
   late TextEditingController controllerValor;
   late TextEditingController controllerData;
   DateTime selectedDate = DateTime.now();
+  late TextEditingController controllerCpf;
+  late TextEditingController controllerAcessoVip;
+  late TextEditingController controllerAcessoGratis;
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -27,6 +31,10 @@ class _KarteFormPageState extends State<KarteFormPage> {
     controllerData = TextEditingController(
       text: selectedDate.toIso8601String(),
     );
+    controllerCpf = TextEditingController();
+    controllerAcessoVip = TextEditingController();
+    controllerAcessoGratis = TextEditingController();
+
     if (widget.id != null) {
       _loadNovoKarte(widget.id!); // Carrega o karte existente caso receba um ID
     }
@@ -38,6 +46,9 @@ class _KarteFormPageState extends State<KarteFormPage> {
     controllerNome.dispose();
     controllerValor.dispose();
     controllerData.dispose();
+    controllerCpf.dispose();
+    controllerAcessoVip.dispose();
+    controllerAcessoGratis.dispose();
     super.dispose();
   }
 
@@ -77,11 +88,54 @@ class _KarteFormPageState extends State<KarteFormPage> {
               padding: const EdgeInsets.all(16.0),
               child: TextFormField(
                 controller: controllerData,
+                readOnly: true,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Data',
                 ),
-                validator: (value) => validaData(value),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextFormField(
+                controller: controllerCpf,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'CPF',
+                ),
+                validator: (value) => validaCpf(value),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextFormField(
+                controller: controllerAcessoGratis,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Acesso Grátis',
+                ),
+                validator: (value) => validaAcessoGratis(value),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                keyboardType: TextInputType.number,
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Checkbox(
+                    value: controllerAcessoVip.text == "true",
+                    onChanged: (value) {
+                      setState(() {
+                        controllerAcessoVip.text = value == true
+                            ? "true"
+                            : "false";
+                      });
+                    },
+                  ),
+                  const Text("Acesso VIP"),
+                ],
               ),
             ),
 
@@ -114,9 +168,20 @@ class _KarteFormPageState extends State<KarteFormPage> {
     return null;
   }
 
-  String? validaData(String? value) {
+  String? validaCpf(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Por favor, insira a data de inclusão.';
+      return 'Por favor, insira o CPF do usuário.';
+    }
+    return null;
+  }
+
+  String? validaAcessoGratis(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Por favor, insira o número de acessos grátis.';
+    }
+    final acessoGratis = int.tryParse(value);
+    if (acessoGratis == null || acessoGratis < 0) {
+      return 'Por favor, insira um número válido para acessos grátis.';
     }
     return null;
   }
@@ -141,6 +206,9 @@ class _KarteFormPageState extends State<KarteFormPage> {
             'nomeUsuario': nomeUsuario,
             'valorSaldo': valorSaldo,
             'dataInclusao': selectedDate.millisecondsSinceEpoch,
+            'cpfUsuario': controllerCpf.text,
+            'acessoVip': controllerAcessoVip.text.toLowerCase() == 'true',
+            'acessoGratis': int.parse(controllerAcessoGratis.text),
           },
         );
       } else {
@@ -151,6 +219,9 @@ class _KarteFormPageState extends State<KarteFormPage> {
             'nomeUsuario': nomeUsuario,
             'valorSaldo': valorSaldo,
             'dataInclusao': selectedDate.millisecondsSinceEpoch,
+            'cpfUsuario': controllerCpf.text,
+            'acessoVip': controllerAcessoVip.text.toLowerCase() == 'true',
+            'acessoGratis': int.parse(controllerAcessoGratis.text),
           },
         );
       }

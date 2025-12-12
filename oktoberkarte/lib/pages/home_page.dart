@@ -47,6 +47,11 @@ class _MyHomePageState extends State<HomePage> {
         nomeUsuario: data['nomeUsuario'],
         valorSaldo: double.parse(data['valorSaldo'].toString()),
         dataInclusao: DateTime.fromMillisecondsSinceEpoch(data['dataInclusao']),
+        cpfUsuario: data['cpfUsuario'],
+        acessoVip: data['acessoVip'],
+        acessoGratis: int.parse(
+          data['acessoGratis'].toString().replaceAll(RegExp(r'[^0-9]'), ''),
+        ),
       );
       kartes.add(karte);
     }
@@ -78,8 +83,13 @@ class _MyHomePageState extends State<HomePage> {
                   title: Text(kartes[index].nomeUsuario),
                   subtitle: Column(
                     children: [
-                      Text(kartes[index].valorSaldo.toString()),
-                      Text(kartes[index].dataInclusao.toString()),
+                      Text('Valor: ${kartes[index].valorSaldo.toString()}'),
+                      Text('Data: ${kartes[index].dataInclusao.toString()}'),
+                      Text('CPF: ${kartes[index].cpfUsuario}'),
+                      Text('Acesso VIP: ${kartes[index].acessoVip}'),
+                      Text(
+                        'Acesso Grátis: ${kartes[index].acessoGratis.toString()}',
+                      ),
                     ],
                   ),
                   trailing: IconButton(
