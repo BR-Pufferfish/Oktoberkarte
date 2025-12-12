@@ -82,6 +82,8 @@ class _KarteFormPageState extends State<KarteFormPage> {
                   labelText: 'Valor',
                 ),
                 validator: (value) => validaValor(value),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                keyboardType: TextInputType.number,
               ),
             ),
             Padding(
@@ -104,6 +106,11 @@ class _KarteFormPageState extends State<KarteFormPage> {
                   labelText: 'CPF',
                 ),
                 validator: (value) => validaCpf(value),
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(11),
+                ],
               ),
             ),
             Padding(
@@ -112,7 +119,7 @@ class _KarteFormPageState extends State<KarteFormPage> {
                 controller: controllerAcessoGratis,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: 'Acesso Grátis',
+                  labelText: 'Acessos Grátis',
                 ),
                 validator: (value) => validaAcessoGratis(value),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
