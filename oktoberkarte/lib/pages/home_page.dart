@@ -82,10 +82,11 @@ class _MyHomePageState extends State<HomePage> {
                   leading: Icon(Icons.task),
                   title: Text(kartes[index].nomeUsuario),
                   subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Valor: ${kartes[index].valorSaldo.toString()}'),
-                      Text('Data: ${kartes[index].dataInclusao.toString()}'),
                       Text('CPF: ${kartes[index].cpfUsuario}'),
+                      Text('Data: ${kartes[index].dataInclusao.toString()}'),
                       Text('Acesso VIP: ${kartes[index].acessoVip}'),
                       Text(
                         'Acesso Grátis: ${kartes[index].acessoGratis.toString()}',

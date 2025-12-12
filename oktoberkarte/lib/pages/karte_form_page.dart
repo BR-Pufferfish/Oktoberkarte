@@ -196,6 +196,10 @@ class _KarteFormPageState extends State<KarteFormPage> {
   Future<void> _salvarKarte() async {
     final nomeUsuario = controllerNome.text;
     final valorSaldo = double.parse(controllerValor.text);
+    final dataInclusao = selectedDate.millisecondsSinceEpoch;
+    final cpfUsuario = controllerCpf.text;
+    final acessoVip = controllerAcessoVip.text.toLowerCase() == 'true';
+    final acessoGratis = int.parse(controllerAcessoGratis.text);
 
     if (formKey.currentState?.validate() == true) {
       var dio = Dio(
@@ -212,10 +216,10 @@ class _KarteFormPageState extends State<KarteFormPage> {
           data: {
             'nomeUsuario': nomeUsuario,
             'valorSaldo': valorSaldo,
-            'dataInclusao': selectedDate.millisecondsSinceEpoch,
-            'cpfUsuario': controllerCpf.text,
-            'acessoVip': controllerAcessoVip.text.toLowerCase() == 'true',
-            'acessoGratis': int.parse(controllerAcessoGratis.text),
+            'dataInclusao': dataInclusao,
+            'cpfUsuario': cpfUsuario,
+            'acessoVip': acessoVip,
+            'acessoGratis': acessoGratis,
           },
         );
       } else {
@@ -225,10 +229,10 @@ class _KarteFormPageState extends State<KarteFormPage> {
           data: {
             'nomeUsuario': nomeUsuario,
             'valorSaldo': valorSaldo,
-            'dataInclusao': selectedDate.millisecondsSinceEpoch,
-            'cpfUsuario': controllerCpf.text,
-            'acessoVip': controllerAcessoVip.text.toLowerCase() == 'true',
-            'acessoGratis': int.parse(controllerAcessoGratis.text),
+            'dataInclusao': dataInclusao,
+            'cpfUsuario': cpfUsuario,
+            'acessoVip': acessoVip,
+            'acessoGratis': acessoGratis,
           },
         );
       }
@@ -253,6 +257,9 @@ class _KarteFormPageState extends State<KarteFormPage> {
         controllerNome.text = _karte!.nomeUsuario;
         controllerValor.text = _karte!.valorSaldo.toString();
         controllerData.text = _karte!.dataInclusao.toIso8601String();
+        controllerCpf.text = _karte!.cpfUsuario;
+        controllerAcessoVip.text = _karte!.acessoVip.toString();
+        controllerAcessoGratis.text = _karte!.acessoGratis.toString();
       });
     } else {
       if (!context.mounted) return;
